@@ -32,7 +32,7 @@ const toggleShowDescription = () => {
           <div class="h-6 w-6 rounded-full mt-2" :style="{ backgroundColor: todo.color }"></div>
           <div>
             <div class="flex gap-3 items-center" :class="{ 'line-through': todo.isCompleted }">
-              <span class="text-xl text-gray-900">{{ todo.title }}</span>
+              <span class="title text-xl text-gray-900">{{ todo.title }}</span>
               <div v-if="todo.isCompleted" class="inline-flex gap-2 text-xs text-white bg-green-500 rounded py-1 px-2">
                 <Icon class="h-4 w-4" :path="doneIconPath"></Icon>
                 <scan>Completed</scan>

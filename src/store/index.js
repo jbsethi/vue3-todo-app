@@ -1,32 +1,78 @@
 import { createStore } from 'vuex'
 
+const initializeTodos = () => {
+  if (localStorage.getItem('todosData')) return JSON.parse(localStorage.getItem('todosData'))
+
+  return []
+}
+
 const store = createStore({
   state: {
-    todos: [
-      {
-        id: 1,
-        title: 'Title of the todo 2',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint amet deleniti omnis cumque hic, similique tempore voluptate earum illo in soluta assumenda dolore magni ea rerum dicta eveniet odio rem.',
-        createdAt: '12-1-2022',
-        color: 'gray',
-        isCompleted: false
-      },
-      {
-        id: 2,
-        title: 'Title of the todo 1',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint amet deleniti omnis cumque hic, similique tempore voluptate earum illo in soluta assumenda dolore magni ea rerum dicta eveniet odio rem.',
-        createdAt: '12-1-2022',
-        color: 'purple',
-        isCompleted: true
-      }
-    ],
+    todos: initializeTodos()
   },
   actions: {
-    removeAllCompleted: ({ commit }) => commit('REMOVE_ALL_COMPLETED'),
-    removeTodo: ({ commit }, payload) => commit('REMOVE_TODO', payload),
-    markComplete: ({ commit }, payload) => commit('MARK_COMPLETE', payload)
+    storeTodo: ({ rootState, commit }, payload) => {
+      const todos = [...rootState.todos];
+      const date = new Date()
+
+      const newTodo = {
+        ...payload,
+        createdAt: `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`,
+        id: (todos[todos.length - 1]?.id ?? 0) + 1
+      }
+
+      todos.push(newTodo);
+
+      const storageString = JSON.stringify(todos)
+
+      localStorage.setItem('todosData', storageString)
+
+      commit('UPDATE_TODOS', todos)
+    },
+    updateTodo: ({ rootState, commit }, payload) => {
+      const todos = [...rootState.todos].map(todo => {
+        if (todo.id == payload.id) return { ...payload.data }
+        return todo
+      })
+
+      const storageString = JSON.stringify(todos)
+
+      localStorage.setItem('todosData', storageString)
+
+      commit('UPDATE_TODOS', todos)
+    },
+    removeAllCompleted: ({ rootState, commit }) => {
+      const todos = [...rootState.todos].filter(todo => !todo.isCompleted)
+      
+      const storageString = JSON.stringify(todos);
+      localStorage.setItem('todosData', storageString);
+
+      commit('REMOVE_ALL_COMPLETED')
+    },
+    removeTodo: ({ rootState, commit }, payload) => {
+      const todos = [...rootState.todos].filter(todo => todo.id !== payload)
+      
+      const storageString = JSON.stringify(todos);
+      localStorage.setItem('todosData', storageString);
+
+      commit('REMOVE_TODO', payload)
+    },
+    markComplete: ({ rootState, commit }, payload) => {
+      const todos = [...rootState.todos].map(todo => {
+        if (todo.id == payload) return { ...todo, isCompleted: true }
+        return todo
+      })
+      
+      const storageString = JSON.stringify(todos);
+      localStorage.setItem('todosData', storageString);
+
+      commit('MARK_COMPLETE', payload)
+    }
   },
   mutations: {
+    UPDATE_TODOS: (state, payload) => {
+      state.todos = payload;
+    },
     REMOVE_ALL_COMPLETED: (state) => {
       state.todos = state.todos.filter(todo => !todo.isCompleted)
     },

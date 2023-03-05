@@ -1,5 +1,5 @@
 <script setup>
-import { mdiCheck, mdiDelete } from '@mdi/js';
+import { mdiCheck, mdiDelete, mdiCogOutline } from '@mdi/js';
 import { ref } from 'vue'
 
 import Icon from '../shared/icon/Icon.vue'
@@ -9,10 +9,11 @@ const { todo } = defineProps({
   todo: Object
 })
 
-const emit = defineEmits(['onComplete', 'onDelete'])
+const emit = defineEmits(['onComplete', 'onDelete', 'onEdit'])
 
 const doneIconPath = ref(mdiCheck);
 const removeIconPath = ref(mdiDelete);
+const editIconPath = ref(mdiCogOutline)
 
 let showDescription = ref(false);
 
@@ -24,8 +25,8 @@ const toggleShowDescription = () => {
 
 <template>
   <div class="shadow hover:shadow-md p-3">
-    <header @click="toggleShowDescription" class="flex items-start justify-between cursor-pointer">
-      <div>
+    <header @click="toggleShowDescription" class="relative flex items-start justify-between cursor-pointer">
+      <div class="pt-10 md:pt-0">
         <div class="flex gap-2 items-center">
           <div class="h-6 w-6 rounded-full" :style="{ backgroundColor: todo.color }"></div>
           <div>
@@ -42,17 +43,23 @@ const toggleShowDescription = () => {
           </div>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <Button v-if="!todo.isCompleted" @click.stop="emit('onComplete', todo.id)" type="primary" >
+      <div class="absolute top-0 right-0 md:static mb-5 md:mb-0 scale-75 md:scale-100 flex items-center justify-end gap-2">
+        <Button v-if="!todo.isCompleted" @click.stop="emit('onComplete', todo.id)" color="primary" >
           <span class="flex gap-1 items-center">
             <Icon :path="doneIconPath"></Icon>
-            <span>Complete</span>
+            <span class="hidden md:inline">Complete</span>
           </span>
         </Button>
-        <Button @click.stop="emit('onDelete', todo.id)" type="danger" >
+        <Button v-if="!todo.isCompleted" @click.stop="emit('onEdit', todo.id)" >
+          <span class="flex gap-1 items-center">
+            <Icon :path="editIconPath"></Icon>
+            <span class="hidden md:inline">Edit</span>
+          </span>
+        </Button>
+        <Button @click.stop="emit('onDelete', todo.id)" color="danger" >
           <span class="flex gap-1 items-center">
             <Icon :path="removeIconPath"></Icon>
-            <span>Remove</span>
+            <span class="hidden md:inline">Remove</span>
           </span>
         </Button>
       </div>

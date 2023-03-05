@@ -1,11 +1,14 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { mdiPlus } from '@mdi/js';
 
+import Icon from './components/shared/icon/Icon.vue'
 import Button from './components/shared/button/Button.vue'
 import TodoSearch from './components/search-component/SearchComponent.vue'
 import TodoList from './components/todo-list/TodoList.vue'
 import TodoListItem from './components/todo-list/TodoListItem.vue'
+import CreateEditTodo from './components/create-edit-todo/CreateEditTodo.vue'
 
 const TIMEOUT_TIMER = 300;
 const FILTERS = {
@@ -18,18 +21,21 @@ let inputTimer = null;
 
 const store = useStore();
 
+const addIconPath = ref(mdiPlus)
 let activeFilter = ref(FILTERS.ALL)
 let searchKeyword = ref('')
 
 const todos = computed(() => {
-  return store.state.todos
-  .filter(todo => todo.title.match(new RegExp(searchKeyword.value, 'i')))
-  .filter(todo => {
-    if (activeFilter.value === FILTERS.COMPLETED) return todo.isCompleted;
-    else if (activeFilter.value === FILTERS.ACTIVE) return !todo.isCompleted
-    
-    return true
-  })
+  return store?.state?.todos?.filter(
+    todo => todo.title.match(new RegExp(searchKeyword.value, 'i'))
+  )?.filter(
+    todo => {
+      if (activeFilter.value === FILTERS.COMPLETED) return todo.isCompleted;
+      else if (activeFilter.value === FILTERS.ACTIVE) return !todo.isCompleted
+      
+      return true
+    }
+  )
 })
 const totalCompleted = computed(() => store.getters.totalCompleted)
 
@@ -48,12 +54,28 @@ const searchTodo = (event) => {
   
 }
 
+const createNewTodoForm = ref(false)
+const editTodoForm = ref(null)
+
+const createNewTodo = () => {
+  createNewTodoForm.value = true
+}
+
+const closeCreateNewTodo = () => {
+  createNewTodoForm.value = false
+  editTodoForm.value = null
+}
+
 const markComplete = (id) => {
   store.dispatch('markComplete', id)
 }
 
 const removeTodo = (id) => {
   store.dispatch('removeTodo', id)
+}
+
+const editTodo = (id) => {
+  editTodoForm.value = todos.value.find(todo => todo.id === id) ?? null
 }
 
 const removeAllCompleted = () => {
@@ -70,39 +92,52 @@ const removeAllCompleted = () => {
           Todo App
         </h1>
 
-        <div class="absolute top-4 right-5">
-          <Button>
-            Create New Todo
+        <div v-if="!createNewTodoForm" class="absolute top-4 right-5">
+          <Button @click="createNewTodo">
+            <span class="flex">
+              <Icon :path="addIconPath"></Icon>
+              <span class="hidden md:inline ml-1">Create</span>
+            </span>
           </Button>
         </div>
       </header>
 
-      <TodoSearch @input="searchTodo"></TodoSearch>
+      <template v-if="createNewTodoForm || !!editTodoForm">
+        <CreateEditTodo :editTodo="editTodoForm" @close="closeCreateNewTodo"></CreateEditTodo>
+      </template>
+      <template v-else>
+        <TodoSearch @input="searchTodo"></TodoSearch>
 
-      <TodoList :todos="todos">
-        <template v-slot:todo="{ todo }">
-          <TodoListItem :todo="todo" @onComplete="markComplete" @onDelete="removeTodo"></TodoListItem>
-        </template>
-      </TodoList>
+        <TodoList :todos="todos">
+          <template v-slot:todo="{ todo }">
+            <TodoListItem
+              :todo="todo"
+              @onComplete="markComplete"
+              @onDelete="removeTodo"
+              @onEdit="editTodo"
+            ></TodoListItem>
+          </template>
+        </TodoList>
 
-      <footer class="px-5">
-        <div class="flex justify-between">
-          <div>{{ totalCompleted }} Items Completed</div>
-          <div>
-            <span @click="removeAllCompleted" class="text-red-500 cursor-pointer hover:underline">Remove All Completed</span>
+        <footer class="px-5">
+          <div class="flex justify-between">
+            <div>{{ totalCompleted }} Items Completed</div>
+            <div v-if="totalCompleted > 0">
+              <span @click="removeAllCompleted" class="text-red-500 cursor-pointer hover:underline">Remove All Completed</span>
+            </div>
           </div>
-        </div>
 
-        <div class="mt-3 pt-3 pb-5">
-          <div class="flex justify-center">
-            <ul class="inline-flex gap-3">
-              <li @click="setActiveFilter(FILTERS.ALL)" :class="{ 'text-purple-500': activeFilter === FILTERS.ALL }" class="cursor-pointer">All</li>
-              <li @click="setActiveFilter(FILTERS.ACTIVE)" :class="{ 'text-purple-500': activeFilter === FILTERS.ACTIVE }" class="cursor-pointer">Active</li>
-              <li @click="setActiveFilter(FILTERS.COMPLETED)" :class="{ 'text-purple-500': activeFilter === FILTERS.COMPLETED }" class="cursor-pointer">Completed</li>
-            </ul>
+          <div class="mt-3 pt-3 pb-5">
+            <div class="flex justify-center">
+              <ul class="inline-flex gap-3">
+                <li @click="setActiveFilter(FILTERS.ALL)" :class="{ 'text-purple-500': activeFilter === FILTERS.ALL }" class="cursor-pointer">All</li>
+                <li @click="setActiveFilter(FILTERS.ACTIVE)" :class="{ 'text-purple-500': activeFilter === FILTERS.ACTIVE }" class="cursor-pointer">Active</li>
+                <li @click="setActiveFilter(FILTERS.COMPLETED)" :class="{ 'text-purple-500': activeFilter === FILTERS.COMPLETED }" class="cursor-pointer">Completed</li>
+              </ul>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </template>
     </div>
   </div>
 </template>

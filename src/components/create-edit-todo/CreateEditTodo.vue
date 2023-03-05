@@ -13,6 +13,7 @@ const emit = defineEmits(['close'])
 const formData = ref({
   color: props.editTodo?.color ?? '#000000',
   title: props.editTodo?.title ?? '',
+  priority: props.editTodo?.priority ?? '0',
   description: props.editTodo?.description ?? '',
 })
 
@@ -25,6 +26,8 @@ const isValidInput = computed(() => {
 
   if (data.description === '') return false
 
+  if (data.priority === '0') return false
+
   return true
 })
 
@@ -35,7 +38,8 @@ const handleFormSubmit = async () => {
     ...(props.editTodo ? props.editTodo : {}),
     title: formData.value.title,
     description: formData.value.description,
-    color: formData.value.color
+    color: formData.value.color,
+    priority: formData.value.priority
   }
 
   if (props.editTodo?.id) {
@@ -71,6 +75,16 @@ const handleFormSubmit = async () => {
         <div class="flex flex-col gap-1">
           <label class="text-lg font-medium text-gray-800">Description</label>
           <textarea v-model="formData.description" class="border w-full p-2" placeholder="Todo Description here ..."></textarea>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-lg font-medium text-gray-800">Todo Priority</label>
+          <select v-model="formData.priority" class="border w-full p-2">
+            <option value="0">Select</option>
+            <option value="low">low</option>
+            <option value="normal">normal</option>
+            <option value="high">high</option>
+            <option value="critical">critical</option>
+          </select>
         </div>
       </section>
 

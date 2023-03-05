@@ -94,7 +94,7 @@ const removeAllCompleted = () => {
 
         <div v-if="!createNewTodoForm" class="absolute top-4 right-5">
           <Button @click="createNewTodo">
-            <span class="flex">
+            <span class="flex items-center">
               <Icon :path="addIconPath"></Icon>
               <span class="hidden md:inline ml-1">Create</span>
             </span>

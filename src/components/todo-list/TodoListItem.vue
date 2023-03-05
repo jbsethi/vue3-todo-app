@@ -2,6 +2,7 @@
 import { mdiCheck, mdiDelete, mdiCogOutline } from '@mdi/js';
 import { ref } from 'vue'
 
+import Badge from '../shared/badge/Badge.vue'
 import Icon from '../shared/icon/Icon.vue'
 import Button from '../shared/button/Button.vue'
 
@@ -27,8 +28,8 @@ const toggleShowDescription = () => {
   <div class="shadow hover:shadow-md p-3">
     <header @click="toggleShowDescription" class="relative flex items-start justify-between cursor-pointer">
       <div class="pt-10 md:pt-0">
-        <div class="flex gap-2 items-center">
-          <div class="h-6 w-6 rounded-full" :style="{ backgroundColor: todo.color }"></div>
+        <div class="flex gap-3 items-start">
+          <div class="h-6 w-6 rounded-full mt-2" :style="{ backgroundColor: todo.color }"></div>
           <div>
             <div class="flex gap-3 items-center" :class="{ 'line-through': todo.isCompleted }">
               <span class="text-xl text-gray-900">{{ todo.title }}</span>
@@ -39,6 +40,9 @@ const toggleShowDescription = () => {
             </div>
             <div class="text-xs text-gray-500">
               {{ todo.createdAt }}
+            </div>
+            <div>
+              <Badge :type="todo.priority">{{  todo.priority  }}</Badge>
             </div>
           </div>
         </div>

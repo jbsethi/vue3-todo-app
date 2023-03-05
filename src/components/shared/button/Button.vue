@@ -23,7 +23,7 @@ switch (props.color) {
 <template>
   <button
     :disabled="props.disabled"
-    class="py-1 px-3 border-2 rounded hover:text-white transition-colors"
+    class="py-1 px-2 border-2 text-xs rounded hover:text-white transition-colors"
     :class="props.disabled ? 'text-gray-800 border-gray-800 hover:text-gray-900' : className"
   >
     <slot></slot>
